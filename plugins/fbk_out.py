@@ -10,6 +10,29 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
+from CPMel_Form import build, item
+from CPMel.cmds import *
+
+#
+# class MainWindow(CPQWidget):
+#     def __init__(self):
+#         super(MainWindow, self).__init__()
+#         self.setWindowTitle(name())
+#
+#         self._main_layout = QVBoxLayout(self)
+#         self._label = QLabel(self)
+#         self._label.setText(u"选择模型")
+#
+#         self._main_layout.addWidget(self._label)
+
+
+ui = (
+    (item.Is, u"Test1"),
+)
+
+
+def FBKOut(self, is_ok):
+    print is_ok
 
 
 def init():
@@ -17,7 +40,7 @@ def init():
 
 
 def doit():
-    print(u"FBKOUT")
+    build(u"TestApp", form=ui, func=FBKOut)
 
 
 def name():

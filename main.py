@@ -18,6 +18,8 @@ reload(config)
 from config import *
 
 if DEBUG:
+    import CPMel_Form
+    reload(CPMel_Form)
     import plugins
 
     reload(plugins)

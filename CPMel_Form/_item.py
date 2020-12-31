@@ -12,8 +12,9 @@ u"""
 """
 from functools import partial
 
-from cpweidgets import CPMel as cc
-from cpweidgets.CPMel import decode, undoBlock
+import CPMel.cmds as cc
+from CPMel.tool import decode, undoBlock
+from CPMel.ui import *
 
 
 class Object(QWidget):
@@ -24,11 +25,26 @@ class Object(QWidget):
         return object
 
 
+class Label(Object):
+    def __init__(self, text=u""):
+        text = decode(text)
+        super(Label, self).__init__()
+        self.main_layout = QHBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setMargin(0)
+        self.main_layout.addWidget(QLabel(text))
+
+    def run(self):
+        return object
+
+
 class Text(Object):
     def __init__(self, text=u""):
         text = decode(text)
         super(Text, self).__init__()
         self.main_layout = QHBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setMargin(0)
         self.text = QLineEdit(text)
         self.main_layout.addWidget(self.text)
 
@@ -41,6 +57,8 @@ class Select(Object):
         text = decode(text)
         super(Select, self).__init__()
         self.main_layout = QHBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setMargin(0)
         self.text = QLineEdit(text)
         self.load_bn = QPushButton(u"载入")
         _ = partial(self.load)
@@ -63,8 +81,9 @@ class SelectList(Object):
     def __init__(self):
         super(SelectList, self).__init__()
         self.main_layout = QHBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setMargin(0)
         self.texts = QTextEdit()
-        self.texts.setMaximumHeight(60)
         self.load_bn = QPushButton(u"载入")
         self.load_bn.clicked.connect(lambda *args: self.load())
         self.main_layout.addWidget(self.texts)
@@ -76,7 +95,7 @@ class SelectList(Object):
         self.texts.setText(u"\n".join([str(i) for i in sel]))
 
     def run(self):
-        return self.texts.placeholderText().split("\n")
+        return self.texts.toPlainText().split("\n")
 
 
 class Is(Object):
@@ -84,6 +103,8 @@ class Is(Object):
         info = decode(info)
         super(Is, self).__init__()
         self.main_layout = QHBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setMargin(0)
         self.query = QCheckBox(info, self)
         self.query.setChecked(default_state)
         self.main_layout.addWidget(self.query)

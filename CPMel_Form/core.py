@@ -10,16 +10,21 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
-from cpweidgets.CPMel import CPMelToolError
-from cpweidgets.CPMel import decode, undoBlock
-import CPMel_Form
+from CPMel.core import CPMelToolError
+from CPMel.tool import decode, undoBlock
+from CPMel.ui import *
+from CPMel_Form import *
 
-
-class Main(CPQWindow):
-    def __init__(self, icon=CPMel_Form.PATH + u"/icon.ico", title=u"CPWindow", form=tuple(), func=lambda *args: 0):
-        super(Main, self).__init__()
+class Main(CPQWidget):
+    def __init__(self, icon=PATH + u"/icon.ico", title=u"CPWindow", form=tuple(), func=lambda *args: 0):
         icon = decode(icon)
         title = decode(title)
+        super(Main, self).__init__()
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setMargin(2)
+        self.main_layout.setSpacing(2)
+
         self.func = undoBlock(func)
         self.weidgets = list()
         self.setWindowTitle(title)
@@ -33,12 +38,13 @@ class Main(CPQWindow):
         self.doIt_bn.clicked.connect(undoBlock(self.doIt))
         self.main_layout.addWidget(self.doIt_bn)
         self.main_layout.addWidget(QLabel(u"本窗口界面由CPMel_Form1.0开发"))
+
     def doIt(self, *args):
         value = [i.run() for i in self.weidgets]
         self.func(*value)
 
-
-def build(icon=CPMel_Form.PATH + u"/icon.ico", title=u"CPWindow", form=tuple(), func=lambda *args: 0):
+apps = dict()
+def build(appname, icon=PATH + u"/icon.ico", title=u"CPWindow", form=tuple(), func=lambda *args: 0):
     u"""
     build函数提供将表单(列表 or 元组)编译为界面的功能
 
@@ -48,10 +54,12 @@ def build(icon=CPMel_Form.PATH + u"/icon.ico", title=u"CPWindow", form=tuple(), 
     :param func: 执行函数 func(表单结果1, 表单结果2, ...)
     :return:
     """
+    if appname in apps:
+        main_widget = apps[appname]
+        deleteWidget(main_widget)
     import os
     if not os.path.isfile(icon):
         raise CPMelToolError(u"图标路径不存在")
     main_widget = Main(icon, title, form, func)
     main_widget.show()
-    # main_widget.setFixedSize(main_widget.size())
-
+    apps[appname] = main_widget

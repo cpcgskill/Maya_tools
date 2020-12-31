@@ -13,11 +13,11 @@ u"""
 from config import *
 
 if DEBUG:
-    from . import fbk_out
+    from . import mesh_mirror
 
-    reload(fbk_out)
-from . import fbk_out
+    reload(mesh_mirror)
+from . import mesh_mirror
 
 plugins = [
-    fbk_out,
+    mesh_mirror,
 ]

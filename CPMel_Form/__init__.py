@@ -23,7 +23,7 @@ ui = (
     (item.Select, u"Test1"),
     (item.SelectList, ),
 )
-build(form=ui, func=test)
+build(u'TestAPP', form=ui, func=test)
 *ui元组:
     从上面可以看到ui变量中没一个元素都是一个元组其中第一个都是CPMel_Form.item模块下的属性这个是用来指定构建什么组件的,
     例如item.Text将会构建一个文本输入框具体见最后介绍
