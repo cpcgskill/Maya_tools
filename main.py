@@ -10,6 +10,7 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
+import json
 import datetime
 
 import config
@@ -19,6 +20,7 @@ from config import *
 
 if DEBUG:
     import CPMel_Form
+
     reload(CPMel_Form)
     import plugins
 
@@ -27,9 +29,30 @@ if DEBUG:
 
     reload(setup)
 
+    import update
+
+    reload(update)
+
 from CPMel.ui import *
 from plugins import plugins
 from setup import show
+import update
+
+
+class HeadPixButton(QPushButton):
+    def __init__(self, parent=None):
+        super(HeadPixButton, self).__init__(parent)
+        self._main_layout = QHBoxLayout(self)
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
+        head_label = QLabel()
+        pix = QPixmap(HEAD_IMG)
+        head_label.setPixmap(pix)
+        self._main_layout.addWidget(head_label)
+        self.setFixedSize(pix.size())
+        self.clicked.connect(lambda *args: QDesktopServices.openUrl(QUrl(u'https://www.cpcgskill.com')))
+
+    def paintEvent(self, event):
+        pass
 
 
 class Head(QWidget):
@@ -38,16 +61,18 @@ class Head(QWidget):
         self.setFixedHeight(36)
         self._main_layout = QHBoxLayout(self)
         self._main_layout.setContentsMargins(0, 0, 0, 0)
-        head_label = QLabel()
-        head_label.setPixmap(QPixmap(HEAD_IMG))
+        head_label = HeadPixButton()
         self._main_layout.addWidget(head_label)
-        v_label = QLabel(START_TIME + u"-" + str(datetime.datetime.now().year) + u" Version " + Version)
+        v_label = QLabel(START_TIME + u"-" + str(datetime.datetime.now().year) + u" Version " + str(Version))
         self._main_layout.addWidget(v_label)
         self._main_layout.addStretch(0)
 
-        setup_bn = QPushButton(u"设置")
-        setup_bn.clicked.connect(lambda *args: show(self))
-        self._main_layout.addWidget(setup_bn)
+        # setup_bn = QPushButton(u"设置")
+        # setup_bn.clicked.connect(lambda *args: show(self))
+        # self._main_layout.addWidget(setup_bn)
+        update_bn = QPushButton(u"更新")
+        update_bn.clicked.connect(lambda *args: update.update())
+        self._main_layout.addWidget(update_bn)
 
 
 class _Body(QWidget):
@@ -77,6 +102,20 @@ class _Body(QWidget):
         self._main_layout.addStretch(0)
 
 
+class UpdateThread(QThread):
+    sinOut = Signal(str)
+
+    def __init__(self, parent=None):
+        super(UpdateThread, self).__init__(parent)
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        info = update.updateinfo()
+        self.sinOut.emit(info)
+
+
 class Body(QWidget):
     def __init__(self, parent=None):
         super(Body, self).__init__(parent)
@@ -95,8 +134,19 @@ class Body(QWidget):
         h_line.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(h_line)
         self._news = QLabel()
-        self._news.setText(u"---------")
+        self._news.setText(u"loading...")
         self._main_layout.addWidget(self._news)
+        self._update_thread = UpdateThread()
+        self._update_thread.sinOut.connect(self._updateVersion)
+        self._update_thread.start()
+
+    def _updateVersion(self, data):
+        data = json.loads(data)
+        if int(Version * 10) < int(data.get(u"version", -1) * 10):
+            self._news.setText(u"存在新的版本 : " + str(data.get(u"version", -1)))
+            return
+        self._news.setText(u"已经是最新的版本了!")
+        return
 
 
 class _MainWindow(QWidget):
@@ -113,11 +163,14 @@ class MainWindow(CPQWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle(Title)
-        self.setMinimumWidth(300)
         icon = QIcon(IMAGES + u"/icon.png")
         self.setWindowIcon(icon)
+        with open(ASSETS + u"/qss.qss", "r") as f:
+            self.setStyleSheet(f.read())
+
         self._main_layout = QVBoxLayout(self)
         self._main_layout.setContentsMargins(0, 0, 0, 0)
+        self._main_layout.setMargin(5)
 
         self._head = Head(self)
         self._body = Body(self)
@@ -126,6 +179,7 @@ class MainWindow(CPQWidget):
         h_line.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(h_line)
         self._main_layout.addWidget(self._body)
+        self.setMinimumHeight(400)
 
         # self._main_layout.setSpacing(0)
         # self._main_window = _MainWindow(self)

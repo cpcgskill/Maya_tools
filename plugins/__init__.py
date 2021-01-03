@@ -13,11 +13,11 @@ u"""
 from config import *
 
 if DEBUG:
-    from . import mesh_mirror
+    from . import mesh_mirror_inspection
 
-    reload(mesh_mirror)
-from . import mesh_mirror
+    reload(mesh_mirror_inspection)
+from . import mesh_mirror_inspection
 
 plugins = [
-    mesh_mirror,
+    mesh_mirror_inspection,
 ]

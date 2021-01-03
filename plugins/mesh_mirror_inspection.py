@@ -28,12 +28,14 @@ from CPMel.api.OpenMaya import MGlobal
 
 
 ui = (
-    [item.Label, u"选择模型 -- 以左边为基准检查右边"],
+    [item.Label, u"误差:"],
+    [item.FloatSlider, 0.001, 0.1, 0.001],
+    [item.Label, u"选择模型"],
     [item.SelectList],
 )
 
 
-def meshMirrorCheck(_, meshs):
+def meshMirrorCheck(_, mistake, _2, meshs):
     meshs = [newObject(i) for i in meshs]
     _meshs = list()
     for i in meshs:
@@ -44,31 +46,22 @@ def meshMirrorCheck(_, meshs):
             for t in ss:
                 _meshs.append(t)
     meshs = [i for i in _meshs if i.type == u"mesh"]
-    select([i.vtx for i in meshs])
-    no_sel_vtx = set()
+    sel_vtx = list()
     for i in meshs:
         MGlobal.displayInfo(u"检查: %s" % i.fullPathName())
+        refresh()
         pts = i.getPoints(space=Space.world)
-        for Id, pt in enumerate(pts):
-            if pt.x > 0.01:
-                pt.x = pt.x * -1
-                for Id_r, pt_r in enumerate(pts):
-                    if pt.dis(pt_r) < 0.01:
-                        no_sel_vtx.add(i.vtx[Id])
-                        no_sel_vtx.add(i.vtx[Id_r])
-            elif pt.x < -0.01:
-                pass
-            else:
-                no_sel_vtx.add(i.vtx[Id])
-    select(list(no_sel_vtx), d=True)
+        reverse_pts = tuple((Double3((i.x * -1, i.y, i.z)) for i in pts))
+        sel_vtx.append([i.vtx[Id] for Id, pt in enumerate(pts) if min((r_pt.dis(pt) for r_pt in reverse_pts)) > mistake])
+    select([t for i in sel_vtx for t in i])
 
 
 def init():
-    print(u"mesh mirror")
+    print(u"mesh mirror inspection")
 
 
 def doit():
-    build(u"TestApp", form=ui, func=meshMirrorCheck, title=name())
+    build(form=ui, func=meshMirrorCheck, title=name())
 
 
 def name():

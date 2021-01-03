@@ -80,7 +80,7 @@ class Select(Object):
 class SelectList(Object):
     def __init__(self):
         super(SelectList, self).__init__()
-        self.main_layout = QHBoxLayout(self)
+        self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setMargin(0)
         self.texts = QTextEdit()
@@ -111,3 +111,39 @@ class Is(Object):
 
     def run(self):
         return self.query.isChecked()
+
+
+class FloatSlider(Object):
+    def __init__(self, min=0, max=1, def_=0):
+        self.min = float(min)
+        self.max = float(max)
+        super(FloatSlider, self).__init__()
+        self._main_layout = QHBoxLayout(self)
+        self._text = QLabel()
+        self._text.setFixedWidth(60)
+
+
+        self._slider = QSlider(Qt.Horizontal, self)
+        self._slider.setMinimum(0)
+        self._slider.setMaximum(1000000)
+        self._slider.sliderMoved.connect(self.updateSlider)
+        self._main_layout.addWidget(self._text)
+        self._main_layout.addWidget(self._slider)
+
+        self.setText(str(def_))
+
+    def run(self):
+        return max(min(float(self.text()), self.max), self.min)
+
+    def updateSlider(self, v):
+        size = self.max - self.min
+        v = max(min(float(v) / 1000000, 1), 0)
+        v = (v * size) + self.min
+        v = max(min(v, self.max), self.min)
+        self.setText(u"%f" % v)
+
+    def setText(self, s):
+        self._text.setText(s)
+
+    def text(self):
+        return self._text.text()

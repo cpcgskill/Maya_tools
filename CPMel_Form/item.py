@@ -14,4 +14,4 @@ from CPMel_Form import DEBUG
 import CPMel_Form._item
 if DEBUG:
     reload(CPMel_Form._item)
-from CPMel_Form._item import Text, Select, SelectList, Is, Label
+from CPMel_Form._item import Text, Select, SelectList, Is, Label, FloatSlider
