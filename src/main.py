@@ -63,7 +63,7 @@ class Head(QWidget):
         self._main_layout.setContentsMargins(0, 0, 0, 0)
         head_label = HeadPixButton()
         self._main_layout.addWidget(head_label)
-        v_label = QLabel(START_TIME + u"-" + str(datetime.datetime.now().year) + u" Version " + str(Version))
+        v_label = QLabel(START_TIME + u"-" + str(datetime.datetime.now().year) + u" Version " + u"{:.1f}".format(Version))
         self._main_layout.addWidget(v_label)
         self._main_layout.addStretch(0)
 

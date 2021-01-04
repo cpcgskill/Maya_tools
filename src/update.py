@@ -50,9 +50,11 @@ def unzipFile(zip_src, dst_dir):
             for file in fz.namelist():
                 try:
                     MGlobal.displayInfo(file)
+                    refresh()
                     fz.extract(file, dst_dir)
                 except Exception as ex:
                     MGlobal.displayWarning(decode(str(ex)))
+                    refresh()
     else:
         raise CPMelError(u"找不到可解压文件")
 
@@ -60,22 +62,25 @@ def unzipFile(zip_src, dst_dir):
 def update():
     MGlobal.displayInfo(u"获取更新信息")
     refresh()
-    url = u"http://tools.cpcgskill.com/updateinfo"
-    req = urllib2.Request(url)
-    response = urllib2.urlopen(req)
-    jsons = response.read()
-    MGlobal.displayInfo(jsons)
-    data = json.loads(jsons)
-    version = data[u"version"]
-    url = data[u"url"]
-    MGlobal.displayInfo(u"下载中")
+    data = json.loads(updateinfo())
+    for k, v in data.items():
+        MGlobal.displayInfo(str(k) + u": " + str(v))
+        refresh()
+
+    if int(Version * 10) < int(data.get(u"version", -1) * 10):
+        url = data[u"url"]
+        MGlobal.displayInfo(u"下载中")
+        refresh()
+        downloadFile(PATH + u"/update.zip", url)
+        MGlobal.displayInfo(u"解压中")
+        refresh()
+        unzipFile(PATH + u"/update.zip", PATH)
+        MGlobal.displayInfo(u"更新完成")
+        refresh()
+        return
+    MGlobal.displayInfo(u"已经是最新的版本了！")
     refresh()
-    downloadFile(PATH + u"/update.zip", url)
-    MGlobal.displayInfo(u"解压中")
-    refresh()
-    unzipFile(PATH + u"/update.zip", PATH)
-    MGlobal.displayInfo(u"更新完成")
-    refresh()
+    return
 
 
 def updateinfo():
