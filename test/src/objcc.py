@@ -10,6 +10,8 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
-from config import *
+import ni._ni
 def debug():
-    return DEBUG
+    if ni._ni:
+        return debug()
+    return ni._ni

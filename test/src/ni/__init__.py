@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*-coding:utf-8 -*-
 u"""
-:创建时间: 2021/1/5 9:31
+:创建时间: 2021/1/8 14:59
 :作者: 苍之幻灵
 :我的主页: https://cpcgskill.com
 :QQ: 2921251087
@@ -10,6 +10,4 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
-from config import *
-def debug():
-    return DEBUG
+import _ni

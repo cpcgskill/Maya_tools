@@ -159,13 +159,33 @@ def addBuildFiles(module_path):
                 except:
                     continue
     # writeFile(module_path, code)
+
+
 def buildModule(file):
     global current_file
     code = readFile(file)
     r_node = ast.parse(code)
     current_file = file
     for i in ast.walk(r_node):
-        pass
+        if isinstance(i, ast.Import):
+            pass
+            for t in i.names:
+                try:
+                    module_name, module_file = absModuleName(t.name, 0)
+                    print module_name, module_file
+                    names = t.name.split(u".")
+                    rename_module = names[0]
+                    for l in ast.walk(r_node):
+                        if isinstance(l, ast.Name):
+                            if l.id == rename_module:
+                                l.id = hashName(l.id)
+                    names[0] = hashName(names[0])
+                    t.name = u".".join(names)
+                except:
+                    continue
+    code = astunparse.unparse(r_node)
+    writeFile(current_file, code)
+
 
 addBuildFiles(current_file)
 print buidl_modules

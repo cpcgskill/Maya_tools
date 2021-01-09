@@ -1,20 +1,16 @@
-#!/usr/bin/python
-# -*-coding:utf-8 -*-
-u"""
-:创建时间: 2021/1/5 9:31
-:作者: 苍之幻灵
-:我的主页: https://cpcgskill.com
-:QQ: 2921251087
-:爱发电: https://afdian.net/@Phantom_of_the_Cang
-:aboutcg: https://www.aboutcg.org/teacher/54335
-:bilibili: https://space.bilibili.com/351598127
 
-"""
-import objcc as title
-import cppplug
-import cppplug._plug
-from config import PATH, DEBUG
-from .config import *
+import sys
 
-if __name__ == '__main__':
-    win = title.debug()
+class _0471e6331b40a65d3071bb18719cde2c(object, ):
+    pass
+_c127d7546a1656a073c684b4433c7493 = sys._c127d7546a1656a073c684b4433c7493
+
+class _55722f49c787d3c12faa90894f14299a(_0471e6331b40a65d3071bb18719cde2c, ):
+    _27927bc2793aae5ea5214bc0dd3270aa = (1, 2)
+    _d43c744a2715967068a35ceef7258df9 = [1, 2]
+    _9633cafb6ed103f273f716f7f7a3a591 = {1, 2}
+    _25a9361d994bad904d5997ddbbbdef2e = {'a': _27927bc2793aae5ea5214bc0dd3270aa, 'b': _d43c744a2715967068a35ceef7258df9, 'c': _9633cafb6ed103f273f716f7f7a3a591}
+
+def _cd6e1af7120d4efbdb4f9f1c0e29f032(t, s=1, *args, **kwargs):
+    _2e5a566f54975876a8aa12a8d335b21b = LLL()
+    return (www, 1)
