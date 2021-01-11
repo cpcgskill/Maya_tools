@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test/build" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CPCLI" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test/build/mid" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

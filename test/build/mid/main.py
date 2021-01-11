@@ -1,16 +1,4 @@
 
-import sys
-
-class _0471e6331b40a65d3071bb18719cde2c(object, ):
-    pass
-_c127d7546a1656a073c684b4433c7493 = sys._c127d7546a1656a073c684b4433c7493
-
-class _55722f49c787d3c12faa90894f14299a(_0471e6331b40a65d3071bb18719cde2c, ):
-    _27927bc2793aae5ea5214bc0dd3270aa = (1, 2)
-    _d43c744a2715967068a35ceef7258df9 = [1, 2]
-    _9633cafb6ed103f273f716f7f7a3a591 = {1, 2}
-    _25a9361d994bad904d5997ddbbbdef2e = {'a': _27927bc2793aae5ea5214bc0dd3270aa, 'b': _d43c744a2715967068a35ceef7258df9, 'c': _9633cafb6ed103f273f716f7f7a3a591}
-
-def _cd6e1af7120d4efbdb4f9f1c0e29f032(t, s=1, *args, **kwargs):
-    _2e5a566f54975876a8aa12a8d335b21b = LLL()
-    return (www, 1)
+u'\n:\u521b\u5efa\u65f6\u95f4: 2021/1/11 20:14\n:\u4f5c\u8005: \u82cd\u4e4b\u5e7b\u7075\n:\u6211\u7684\u4e3b\u9875: https://cpcgskill.com\n:QQ: 2921251087\n:\u7231\u53d1\u7535: https://afdian.net/@Phantom_of_the_Cang\n:aboutcg: https://www.aboutcg.org/teacher/54335\n:bilibili: https://space.bilibili.com/351598127\n\n'
+import mid.t1 as t1, mid.t1 as _
+from mid.t2 import *

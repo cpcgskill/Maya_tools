@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*-coding:utf-8 -*-
 u"""
-:创建时间: 2021/1/8 14:59
+:创建时间: 2021/1/12 0:06
 :作者: 苍之幻灵
 :我的主页: https://cpcgskill.com
 :QQ: 2921251087
@@ -10,4 +10,4 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
-import _ni
+import t3.t4

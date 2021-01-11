@@ -170,14 +170,14 @@ class BuildPython(object):
         print self.modules
 
     def hashName(self, s):
-        v = u"_" + hashString(self.n_id + s)
+        v = u"_DEBUG_" + s
         return v
 
     def gotoFile(self, path):
         self.current_file = formattedPath(path)
         self.current_src = u"/".join(self.current_file.split(u"/")[:-1])
 
-    def buildLine_Import(self, node, gl_space, loc_space):
+    def build_Import(self, node, gl_space, loc_space):
         i = node
         for t in i.names:
             if not self.Import(t.name) is None:
@@ -189,7 +189,8 @@ class BuildPython(object):
                     loc_space.data[n] = self.modules.get(n)
                 t.name = ".".join([self.hashName(n) for n in t.name.split(".")])
 
-    def buildLine_Assign(self, node, gl_space, loc_space):
+    def build_Assign(self, node, gl_space, loc_space):
+        v = self.buildNode(node.value, gl_space, loc_space)
         py_value_re = re.compile(r"__.*__")
         for t in node.targets:
             if isinstance(t, ast.Tuple):
@@ -201,50 +202,54 @@ class BuildPython(object):
                         l.id = self.hashName(l.id)
             else:
                 if py_value_re.match(t.id) is None:
-                    n = Node("value")
-                    n.value = t.id
+                    if not v is None:
+                        n = v
+                    else:
+                        n = Node("value")
+                    n.name = t.id
                     loc_space.data[t.id] = n
                     t.id = self.hashName(t.id)
-        self.buildToken(node.value, gl_space, loc_space)
-        self.buildValue(node.value, gl_space, loc_space)
 
-    def buildLine_Call(self, node, gl_space, loc_space):
-        self.buildToken(node, gl_space, loc_space)
-        self.buildValue(node, gl_space, loc_space)
+    def build_Call(self, node, gl_space, loc_space):
+        n = Node("object")
+        if node.func in loc_space.data:
+            obj = loc_space.data[node.func]
+            n.data = obj.data
+        elif node.func in gl_space.data:
+            obj = gl_space.data[node.func]
+            n.data = obj.data
+        self.buildNode(node.func, gl_space, loc_space)
+        return n
 
-    def buildLine_Return(self, node, gl_space, loc_space):
-        self.buildToken(node, gl_space, loc_space)
-        self.buildValue(node, gl_space, loc_space)
+    def build_Return(self, node, gl_space, loc_space):
+        self.buildNode(node.value, gl_space, loc_space)
 
-    def buildVlaue_Tuple(self, node, gl_space, loc_space):
+    def build_Tuple(self, node, gl_space, loc_space):
         for i in node.elts:
-            self.buildValue(i, gl_space, loc_space)
-            self.buildToken(i, gl_space, loc_space)
+            self.buildNode(i, gl_space, loc_space)
 
-    def buildVlaue_List(self, node, gl_space, loc_space):
+    def build_List(self, node, gl_space, loc_space):
         for i in node.elts:
-            self.buildValue(i, gl_space, loc_space)
-            self.buildToken(i, gl_space, loc_space)
+            self.buildNode(i, gl_space, loc_space)
 
-    def buildVlaue_Set(self, node, gl_space, loc_space):
+    def build_Set(self, node, gl_space, loc_space):
         for i in node.elts:
-            self.buildValue(i, gl_space, loc_space)
-            self.buildToken(i, gl_space, loc_space)
+            self.buildNode(i, gl_space, loc_space)
 
-    def buildVlaue_Dict(self, node, gl_space, loc_space):
+    def build_Dict(self, node, gl_space, loc_space):
         for k, v in zip(node.keys, node.values):
-            self.buildValue(k, gl_space, loc_space)
-            self.buildValue(v, gl_space, loc_space)
-            self.buildToken(k, gl_space, loc_space)
-            self.buildToken(v, gl_space, loc_space)
+            self.buildNode(k, gl_space, loc_space)
+            self.buildNode(v, gl_space, loc_space)
 
-    def buildToken_Name(self, node, gl_space, loc_space):
+    def build_Name(self, node, gl_space, loc_space):
         if node.id in loc_space.data:
             node.id = self.hashName(node.id)
+            return loc_space.data.get(node.id)
         if node.id in gl_space.data:
             node.id = self.hashName(node.id)
+            return gl_space.data.get(node.id)
 
-    def buildToken_Attribute(self, node, gl_space, loc_space):
+    def build_Attribute(self, node, gl_space, loc_space):
         attrs = list()
         n = node
         while True:
@@ -254,33 +259,34 @@ class BuildPython(object):
             n = n.value
         space = loc_space
         for attr in attrs:
-            if isinstance(attr, ast.Name):
-                if attr.id in space.data:
-                    space = space.data[attr.id]
-                    attr.id = self.hashName(attr.id)
-            elif isinstance(attr, ast.Attribute):
+            if isinstance(attr, ast.Attribute):
                 if attr.attr in space.data:
                     space = space.data[attr.attr]
                     attr.attr = self.hashName(attr.attr)
+                else:
+                    return
             else:
-                break
+                return self.buildNode(attr, space, space)
+        return
 
-    def buildBlock_Class(self, node, gl_space, loc_space):
+    def build_Class(self, node, gl_space, loc_space):
+        node_name = node.name
         next_space = Node("class")
-        loc_space.data[node.name] = next_space
 
         # 修改类名称与基类名称
         node.name = self.hashName(node.name)
         for i in node.bases:
-            self.buildToken(i, gl_space, loc_space)
+            self.buildNode(i, gl_space, loc_space)
 
-        # 编译类的body部分
-        for i in node.body:
-            print "class >>", i
-            self.buildLine(i, gl_space, next_space)
-            self.buildBlock(i, gl_space, next_space)
+        # # 编译类的body部分
+        # for i in node.body:
+        #     print "class >>", i
+        #     self.buildNode(i, gl_space, next_space)
 
-    def buildBlock_Function(self, node, gl_space, loc_space):
+        # 类创建完成添加!!!
+        loc_space.data[node_name] = next_space
+
+    def build_Function(self, node, gl_space, loc_space):
         next_space = Node("function")
 
         loc_space.data[node.name] = next_space
@@ -289,46 +295,43 @@ class BuildPython(object):
 
         node.name = self.hashName(node.name)
         for i in node.args.args:
-            self.buildToken(i, gl_space, temporary_space)
+            self.buildNode(i, gl_space, temporary_space)
         for i in node.body:
             print "fucn >>", i
-            self.buildLine(i, gl_space, temporary_space)
-            self.buildBlock(i, gl_space, temporary_space)
+            self.buildNode(i, gl_space, temporary_space)
 
-    def buildValue(self, node, gl_space, loc_space):
-        if isinstance(node, ast.Tuple):
-            self.buildVlaue_Tuple(node, gl_space, loc_space)
-        elif isinstance(node, ast.List):
-            self.buildVlaue_List(node, gl_space, loc_space)
-        elif isinstance(node, ast.Set):
-            self.buildVlaue_Set(node, gl_space, loc_space)
-        elif isinstance(node, ast.Dict):
-            self.buildVlaue_Dict(node, gl_space, loc_space)
-
-    def buildLine(self, node, gl_space, loc_space):
+    def buildNode(self, node, gl_space, loc_space):
+        # line
         # import from
         if isinstance(node, ast.Import):
-            self.buildLine_Import(node, gl_space, loc_space)
+            return self.build_Import(node, gl_space, loc_space)
         # as name
-        elif isinstance(node, ast.Assign):
-            self.buildLine_Assign(node, gl_space, loc_space)
-        elif isinstance(node, ast.Call):
-            self.buildLine_Call(node, gl_space, loc_space)
-        elif isinstance(node, ast.Return):
-            self.buildLine_Return(node, gl_space, loc_space)
-
-    def buildToken(self, node, gl_space, loc_space):
+        if isinstance(node, ast.Assign):
+            return self.build_Assign(node, gl_space, loc_space)
+        if isinstance(node, ast.Call):
+            return self.build_Call(node, gl_space, loc_space)
+        if isinstance(node, ast.Return):
+            return self.build_Return(node, gl_space, loc_space)
+        # Value
+        if isinstance(node, ast.Tuple):
+            return self.build_Tuple(node, gl_space, loc_space)
+        if isinstance(node, ast.List):
+            return self.build_List(node, gl_space, loc_space)
+        if isinstance(node, ast.Set):
+            return self.build_Set(node, gl_space, loc_space)
+        if isinstance(node, ast.Dict):
+            return self.build_Dict(node, gl_space, loc_space)
+        # token
         if isinstance(node, ast.Attribute):
-            self.buildToken_Attribute(node, gl_space, loc_space)
-        elif isinstance(node, ast.Name):
-            self.buildToken_Name(node, gl_space, loc_space)
-
-    def buildBlock(self, node, gl_space, loc_space):
+            return self.build_Attribute(node, gl_space, loc_space)
+        if isinstance(node, ast.Name):
+            return self.build_Name(node, gl_space, loc_space)
+        # Block
         if isinstance(node, ast.ClassDef):
-            self.buildBlock_Class(node, gl_space, loc_space)
-        elif isinstance(node, ast.FunctionDef):
-            self.buildBlock_Function(node, gl_space, loc_space)
-
+            return self.build_Class(node, gl_space, loc_space)
+        if isinstance(node, ast.FunctionDef):
+            return self.build_Function(node, gl_space, loc_space)
+        return
         # for i in nodes.body:
         #     print i
         #     # import from
@@ -401,8 +404,7 @@ class BuildPython(object):
         nodes = ast.parse(code)
         for i in nodes.body:
             print i
-            self.buildLine(i, module_node, module_node)
-            self.buildBlock(i, module_node, module_node)
+            self.buildNode(i, module_node, module_node)
         # if isinstance(i, ast.Name):
         #     i.id = self.hashName(i.id)
         code = astunparse.unparse(nodes)
