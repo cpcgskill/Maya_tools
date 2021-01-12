@@ -13,7 +13,7 @@ u"""
 import os
 
 PATH = os.path.dirname(os.path.abspath(__file__)).replace(u"\\", u"/")
-DEBUG = True
+DEBUG = False
 Title = u"Tools"
 START_TIME = u"2020"
 Version = 0.1

@@ -57,6 +57,13 @@ win.show()
 
 
 class BuildPython(object):
+    head = u"""\
+import sys
+import <<group>>
+
+<<group>>.<<module>> = sys.modules.get(__name__)
+"""
+
     def __init__(self, script=_test_script_, src=r"D:\Development\tools\test\build\mid"):
         self.src = formattedPath(src)
         self.current_src = self.src
@@ -68,6 +75,20 @@ class BuildPython(object):
         for root, dirs, files in os.walk(self.src):
             for file in files:
                 self.files.append(formattedPath(u"%s/%s" % (root, file)))
+
+        build_files = [i for i in self.files if i.split(u".")[-1] == u"py"]
+        for i in build_files:
+            self.buildPyFile(i)
+
+        for i in build_files:
+            module_name = self.fileModuleName(self.src, i)
+            if len(module_name.split(u".")) == 1:
+                code = readFile(i)
+                nodes = ast.parse(code)
+                for t in reversed(self.buildTemplate(module_name.split(u".")[0])):
+                    nodes.body.insert(0, t)
+                writeFile(i, astunparse.unparse(nodes))
+
         nodes = ast.parse(script)
         for i in ast.walk(nodes):
             if isinstance(i, ast.Import):
@@ -78,17 +99,16 @@ class BuildPython(object):
                         module_name = self.fileModuleName(self.src, file)
                         module_name = u"%s.%s" % (self.group_name, module_name)
                         module_names = module_name.split(u".")
-                        head = ast.alias()
-                        head.name = u".".join(module_names[:2])
                         if t.asname is None:
+                            head = ast.alias()
+                            head.name = u".".join(module_names[:2])
                             head.asname = module_names[1]
-                        else:
-                            head.asname = u"_"
-                        if t.asname is None:
+
                             t.asname = u"_"
-                        i.names[ID] = [head, t]
+                            i.names[ID] = [head, t]
+                        else:
+                            i.names[ID] = [t]
                         t.name = module_name
-                        self.buildPyFile(file)
                     else:
                         i.names[ID] = [t]
                 i.names = [l for t in i.names for l in t]
@@ -99,9 +119,14 @@ class BuildPython(object):
                         module_name = self.fileModuleName(self.src, file)
                         module_name = u"%s.%s" % (self.group_name, module_name)
                         i.module = module_name
-                        self.buildPyFile(file)
         code = astunparse.unparse(nodes)
         print code
+
+    def buildTemplate(self, module_name):
+        head = self.head
+        head = head.replace(u"<<group>>", self.group_name)
+        head = head.replace(u"<<module>>", module_name)
+        return ast.parse(head).body
 
     def buildPyFile(self, file):
         if file in self.build_end_files:
@@ -118,44 +143,36 @@ class BuildPython(object):
                 if isinstance(i, ast.Import):
                     for ID in range(len(i.names)):
                         t = i.names[ID]
-                        file = self.searchModuleFile(self.current_src, t.name)
-                        if file is None:
-                            file = self.searchModuleFile(self.src, t.name)
+                        file = self.searchModuleFile(self.src, t.name)
                         if not file is None:
                             module_name = self.fileModuleName(self.src, file)
                             module_name = u"%s.%s" % (self.group_name, module_name)
                             module_names = module_name.split(u".")
                             op_module_names = t.name.split(u".")
 
-                            # 头部
-                            head = ast.alias()
-                            head.name = u".".join(module_names[:len(module_names) - (len(op_module_names) - 1)])
                             if t.asname is None:
+                                head = ast.alias()
+                                head.name = u".".join(module_names[:len(module_names) - (len(op_module_names) - 1)])
                                 head.asname = module_names[len(module_names) - len(op_module_names)]
-                            else:
-                                head.asname = u"_"
-                            # 身体 （原来的导入）
-                            if t.asname is None:
                                 t.asname = u"_"
-                            i.names[ID] = [head, t]
+                                i.names[ID] = [head, t]
+                            else:
+                                i.names[ID] = [t]
                             t.name = module_name
                             # 对应的python文件
-                            self.buildPyFile(file)
+                            # self.buildPyFile(file)
                         else:
                             i.names[ID] = [t]
                     i.names = [l for t in i.names for l in t]
                 elif isinstance(i, ast.ImportFrom):
                     if i.level < 1:
-                        file = self.searchModuleFile(self.current_file, i.module)
-                        if file is None:
-                            file = self.searchModuleFile(self.src, i.module)
+                        file = self.searchModuleFile(self.src, i.module)
                         if not file is None:
                             module_name = self.fileModuleName(self.src, file)
                             module_name = u"%s.%s" % (self.group_name, module_name)
                             i.module = module_name
-                            self.buildPyFile(file)
+                            # self.buildPyFile(file)
             code = astunparse.unparse(nodes)
-            print ">> ", file, " :\n", code
             writeFile(self.current_file, code)
         except Exception as ex:
             if self.current_file in self.build_end_files:
@@ -206,6 +223,9 @@ class BuildPython(object):
 
     def fileModuleName(self, root, module_file):
         names = module_file[len(root) + 1:].split(u"/")
+        if len(names) <= 1:
+            names[-1] = names[-1].split(u".")[0]
+            return u".".join(names)
         if names[-1] == u"__init__.py":
             names.pop(-1)
         names[-1] = names[-1].split(u".")[0]
