@@ -10,17 +10,11 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
-import os
-import re
-import shutil
-import glob
-import codecs
 import uuid
 import hashlib
 import ast
 import astunparse
 
-import utils
 from utils import *
 
 
@@ -64,22 +58,39 @@ import <<group>>
 <<group>>.<<module>> = sys.modules.get(__name__)
 """
 
-    def __init__(self, script=_test_script_, src=r"D:\Development\tools\test\build\mid"):
-        self.src = formattedPath(src)
+    def __init__(self,
+                 src=r"D:\Development\tools\test\src",
+                 build=r"D:\Development\tools\test\build",
+                 group_name="test"):
+        src = formattedPath(src)
+        build = formattedPath(build)
+        build = u"%s/%s" % (build, group_name)
+
+        copyDir(src, build)
+
+        self.src = build
         self.current_src = self.src
         self.current_file = None
         self.n_id = u"_" + uid()
         self.files = list()
         self.build_end_files = list()
-        self.group_name = "mid"
+        self.group_name = group_name
+
+        # 获得所有文件
+
         for root, dirs, files in os.walk(self.src):
             for file in files:
                 self.files.append(formattedPath(u"%s/%s" % (root, file)))
 
+    def run(self, script=_test_script_):
+        # 确定要编译的文件
         build_files = [i for i in self.files if i.split(u".")[-1] == u"py"]
+
+        # 对文件进行编译
         for i in build_files:
             self.buildPyFile(i)
 
+        # 添加运行时头
         for i in build_files:
             module_name = self.fileModuleName(self.src, i)
             if len(module_name.split(u".")) == 1:
@@ -89,6 +100,7 @@ import <<group>>
                     nodes.body.insert(0, t)
                 writeFile(i, astunparse.unparse(nodes))
 
+        # 编译脚本程序
         nodes = ast.parse(script)
         for i in ast.walk(nodes):
             if isinstance(i, ast.Import):
@@ -120,7 +132,7 @@ import <<group>>
                         module_name = u"%s.%s" % (self.group_name, module_name)
                         i.module = module_name
         code = astunparse.unparse(nodes)
-        print code
+        return code
 
     def buildTemplate(self, module_name):
         head = self.head
@@ -181,12 +193,6 @@ import <<group>>
             self.current_file = _up_file
             if not _up_file is None:
                 self.current_src = u"/".join(self.current_file.split(u"/")[:-1])
-
-    def Import(self, name):
-        pass
-
-    def ImportFrom(self, name, levex=0):
-        pass
 
     def isfile(self, file):
         file = formattedPath(file)
@@ -250,4 +256,5 @@ import <<group>>
         return None
 
 
-BuildPython()
+o = BuildPython(group_name=uid())
+print o.run()
