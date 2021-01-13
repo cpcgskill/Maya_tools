@@ -51,14 +51,6 @@ def hashString(string):
     return md5.hexdigest()
 
 
-_test_script_ = """\
-import main
-from main import *
-win = MainWindow()
-win.show()
-"""
-
-
 class BuildPython(object):
     head = u"""\
 import sys
@@ -88,7 +80,7 @@ import <<group>>
             for file in files:
                 self.files.append(formattedPath(u"%s/%s" % (root, file)))
 
-    def run(self, script=_test_script_):
+    def run(self, script=u"入口脚本"):
         # 确定要编译的文件
         build_files = [i for i in self.files if i.split(u".")[-1] == u"py"]
 
@@ -264,17 +256,21 @@ import <<group>>
         return None
 
 
-def group(src, build, group_name=None):
+def group(main_script, src, build, group_name=None):
+    main_script = formattedPath(main_script)
+    script = readFile(main_script)
     if group_name is None:
         group_name = uidname()
     o = BuildPython(src=src,
                     build=build,
                     group_name=group_name)
-    script = o.run(_test_script_)
+    script = o.run(script)
     logging.info(u"name :%s" % group_name)
+    writeFile(main_script, script)
     logging.info(u"script :\n" + script)
 
 
 if __name__ == '__main__':
-    group(src=r"D:\Development\tools\src",
+    group(main_script=r"D:\Development\tools\script\entrance.py",
+          src=r"D:\Development\tools\src",
           build=r"D:\Development\tools\build")

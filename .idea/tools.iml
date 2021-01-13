@@ -5,8 +5,6 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/build" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test/build" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CPCLI" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
