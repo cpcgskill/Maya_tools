@@ -10,6 +10,7 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
-from CPCLI import newmoves
+from CPCLI import *
+
 if __name__ == '__main__':
     newmoves(r"D:\Development\tools\src")

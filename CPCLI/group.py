@@ -11,8 +11,6 @@ u"""
 
 """
 import logging
-import uuid
-import hashlib
 import ast
 import astunparse
 
@@ -23,34 +21,6 @@ logging.basicConfig(
     level=logging.DEBUG)
 
 
-def formattedPath(path):
-    path = decode(path)
-    path = path.replace(u"\\", u"/")
-    if path[-1] == u"/":
-        path = path[:-1]
-    return path.replace(u"\\", u"/")
-
-
-def uid():
-    return uuid.uuid4().hex
-
-
-def uidname():
-    return u"_" + uid()
-
-
-def hashString(string):
-    u"""
-
-    :param string:
-    :type string: str
-    :return:
-    """
-    md5 = hashlib.md5()
-    md5.update(bytes(decode(string).encode("utf-8")))
-    return md5.hexdigest()
-
-
 class BuildPython(object):
     head = u"""\
 import sys
@@ -59,16 +29,12 @@ import <<group>>
 <<group>>.<<module>> = sys.modules.get(__name__)
 """
 
-    def __init__(self, src, build, group_name):
-        src = formattedPath(src)
-        build = formattedPath(build)
-        build = u"%s/%s" % (build, group_name)
-
-        copyDir(src, build)
-
-        self.src = build
+    def __init__(self, src, group_name, script):
+        self.src = formattedPath(src)
         self.current_src = self.src
         self.current_file = None
+        self.script = formattedPath(script)
+
         self.n_id = u"_" + uid()
         self.files = list()
         self.build_end_files = list()
@@ -80,7 +46,7 @@ import <<group>>
             for file in files:
                 self.files.append(formattedPath(u"%s/%s" % (root, file)))
 
-    def run(self, script=u"入口脚本"):
+    def run(self):
         # 确定要编译的文件
         build_files = [i for i in self.files if i.split(u".")[-1] == u"py"]
 
@@ -101,7 +67,8 @@ import <<group>>
                 writeFile(i, astunparse.unparse(nodes))
 
         # 编译脚本程序
-        nodes = ast.parse(script)
+        code = readFile(self.script)
+        nodes = ast.parse(code)
         for i in ast.walk(nodes):
             if isinstance(i, ast.Import):
                 for ID in range(len(i.names)):
@@ -132,7 +99,7 @@ import <<group>>
                         module_name = u"%s.%s" % (self.group_name, module_name)
                         i.module = module_name
         code = astunparse.unparse(nodes)
-        return code
+        writeFile(self.script, code)
 
     def buildTemplate(self, module_name):
         head = self.head
@@ -256,21 +223,8 @@ import <<group>>
         return None
 
 
-def group(main_script, src, build, group_name=None):
-    main_script = formattedPath(main_script)
-    script = readFile(main_script)
+def group(src, script, group_name=None):
+    script = formattedPath(script)
     if group_name is None:
         group_name = uidname()
-    o = BuildPython(src=src,
-                    build=build,
-                    group_name=group_name)
-    script = o.run(script)
-    logging.info(u"name :%s" % group_name)
-    writeFile(main_script, script)
-    logging.info(u"script :\n" + script)
-
-
-if __name__ == '__main__':
-    group(main_script=r"D:\Development\tools\script\entrance.py",
-          src=r"D:\Development\tools\src",
-          build=r"D:\Development\tools\build")
+    BuildPython(src=src, group_name=group_name, script=script).run()

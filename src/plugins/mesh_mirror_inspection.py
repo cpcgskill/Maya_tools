@@ -14,29 +14,15 @@ from CPMel_Form import build, item
 from CPMel.cmds import *
 from CPMel.api.OpenMaya import MGlobal
 
-#
-# class MainWindow(CPQWidget):
-#     def __init__(self):
-#         super(MainWindow, self).__init__()
-#         self.setWindowTitle(name())
-#
-#         self._main_layout = QVBoxLayout(self)
-#         self._label = QLabel(self)
-#         self._label.setText(u"选择模型")
-#
-#         self._main_layout.addWidget(self._label)
-
-
 ui = (
+    [item.Help, u"多边形模型顶点镜像检查工具"],
     [item.Label, u"误差:"],
     [item.FloatSlider, 0.001, 0.1, 0.001],
-    [item.Label, u"选择模型"],
-    [item.SelectList],
 )
 
 
-def meshMirrorCheck(_, mistake, _2, meshs):
-    meshs = [newObject(i) for i in meshs]
+def meshMirrorCheck(_, __, mistake):
+    meshs = selected()
     _meshs = list()
     for i in meshs:
         ss = listRelatives(i, s=True)
@@ -52,7 +38,8 @@ def meshMirrorCheck(_, mistake, _2, meshs):
         refresh()
         pts = i.getPoints(space=Space.world)
         reverse_pts = tuple((Double3((i.x * -1, i.y, i.z)) for i in pts))
-        sel_vtx.append([i.vtx[Id] for Id, pt in enumerate(pts) if min((r_pt.dis(pt) for r_pt in reverse_pts)) > mistake])
+        sel_vtx.append(
+            [i.vtx[Id] for Id, pt in enumerate(pts) if min((r_pt.dis(pt) for r_pt in reverse_pts)) > mistake])
     select([t for i in sel_vtx for t in i])
 
 
@@ -61,7 +48,7 @@ def init():
 
 
 def doit():
-    build(form=ui, func=meshMirrorCheck, title=name())
+    build(form=ui, func=meshMirrorCheck, title=name(), doit_text=u"选择模型执行")
 
 
 def name():

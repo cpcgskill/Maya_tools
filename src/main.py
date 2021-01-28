@@ -12,7 +12,7 @@ u"""
 """
 import json
 import datetime
-
+from functools import partial
 import config
 
 reload(config)
@@ -34,8 +34,8 @@ if DEBUG:
     reload(update)
 
 from CPMel.ui import *
+from CPMel.tool import *
 from plugins import plugins
-from setup import show
 import update
 
 
@@ -63,16 +63,8 @@ class Head(QWidget):
         self._main_layout.setContentsMargins(0, 0, 0, 0)
         head_label = HeadPixButton()
         self._main_layout.addWidget(head_label)
-        v_label = QLabel(START_TIME + u"-" + str(datetime.datetime.now().year) + u" Version " + u"{:.1f}".format(Version))
-        self._main_layout.addWidget(v_label)
         self._main_layout.addStretch(0)
 
-        # setup_bn = QPushButton(u"设置")
-        # setup_bn.clicked.connect(lambda *args: show(self))
-        # self._main_layout.addWidget(setup_bn)
-        update_bn = QPushButton(u"更新")
-        update_bn.clicked.connect(lambda *args: update.update())
-        self._main_layout.addWidget(update_bn)
 
 
 class _Body(QWidget):
@@ -90,13 +82,10 @@ class _Body(QWidget):
             except Exception as ex:
                 print(ex)
             else:
-                label = QLabel(self)
-                label.setPixmap(pix)
-                label.setFixedSize(QSize(20, 20))
-                bn = QPushButton(name)
-                bn.clicked.connect(lambda *args: i.doit())
+                bn = QPushButton(u" " + name)
+                bn.setIcon(pix)
+                bn.clicked.connect(undoBlock(i.doit))
                 h_layout = QHBoxLayout()
-                h_layout.addWidget(label)
                 h_layout.addWidget(bn)
                 self._main_layout.addLayout(h_layout)
         self._main_layout.addStretch(0)
@@ -130,33 +119,38 @@ class Body(QWidget):
         scrollArea.setWidget(self._body)
         self._main_layout.addWidget(scrollArea)
 
-        h_line = QFrame(self)
-        h_line.setFrameShape(QFrame.HLine)
-        self._main_layout.addWidget(h_line)
-        self._news = QLabel()
-        self._news.setText(u"loading...")
-        self._main_layout.addWidget(self._news)
-        self._update_thread = UpdateThread()
-        self._update_thread.sinOut.connect(self._updateVersion)
-        self._update_thread.start()
 
-    def _updateVersion(self, data):
-        data = json.loads(data)
-        if int(Version * 10) < int(data.get(u"version", -1) * 10):
-            self._news.setText(u"存在新的版本 : " + str(data.get(u"version", -1)))
-            return
-        self._news.setText(u"已经是最新的版本了!")
-        return
-
-
-class _MainWindow(QWidget):
+class Footer(QWidget):
     def __init__(self, parent=None):
-        super(_MainWindow, self).__init__(parent)
-        self._main_layout = QVBoxLayout(self)
-        self._head = Head(self)
-        self._body = Body(self)
-        self._main_layout.addWidget(self._head)
-        self._main_layout.addWidget(self._body)
+        super(Footer, self).__init__(parent)
+        self._main_layout = QHBoxLayout(self)
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
+        self._main_layout.setMargin(0)
+        self._main_layout.setSpacing(0)
+        v_label = QLabel(
+            START_TIME + u"-" + str(datetime.datetime.now().year) + u" Version " + u"{:.1f}".format(Version))
+        self._main_layout.addWidget(v_label)
+        self._main_layout.addStretch(0)
+    #     self._news = QLabel()
+    #     self._news.setText(u"loading...")
+    #     self._main_layout.addWidget(self._news)
+    #     self._update_thread = UpdateThread()
+    #     self._update_thread.sinOut.connect(self._updateVersion)
+    #     self._update_thread.start()
+    #
+    #     self.update_bn = QPushButton(u"更新")
+    #     self.update_bn.clicked.connect(lambda *args: update.update())
+    #     self._main_layout.addWidget(self.update_bn)
+    #     self.update_bn.close()
+    #
+    # def _updateVersion(self, data):
+    #     data = json.loads(data)
+    #     if int(Version * 10) < int(data.get(u"version", -1) * 10):
+    #         self._news.setText(u"存在新的版本 : " + str(data.get(u"version", -1)))
+    #         self.update_bn.show()
+    #         return
+    #     self._news.setText(u"已经是最新的版本了!")
+    #     return
 
 
 class MainWindow(CPQWidget):
@@ -174,11 +168,17 @@ class MainWindow(CPQWidget):
 
         self._head = Head(self)
         self._body = Body(self)
+        self._footer = Footer(self)
         self._main_layout.addWidget(self._head)
         h_line = QFrame(self)
         h_line.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(h_line)
         self._main_layout.addWidget(self._body)
+        h_line = QFrame(self)
+        h_line.setFrameShape(QFrame.HLine)
+        self._main_layout.addWidget(h_line)
+        self._main_layout.addWidget(self._footer)
+        self.setMinimumWidth(240)
         self.setMinimumHeight(400)
 
         # self._main_layout.setSpacing(0)
@@ -188,5 +188,13 @@ class MainWindow(CPQWidget):
         # scrollArea.setWidget(self._main_window)
         # self._main_layout.addWidget(scrollArea)
 
-    def closeEvent(self, *args, **kwargs):
-        deleteWidget(self)
+
+win = None
+
+
+def main():
+    global win
+    if not win is None:
+        deleteWidget(win)
+    win = MainWindow()
+    win.show()

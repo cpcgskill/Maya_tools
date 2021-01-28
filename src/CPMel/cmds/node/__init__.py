@@ -21,7 +21,14 @@ from . import basedata
 from . import nodedata
 from . import nodetypes
 from ...tool import decode
+# DELETE #
+from ... import ISDEBUG
 
+if ISDEBUG:
+    reload(basedata)
+    reload(nodedata)
+    reload(nodetypes)
+# \DELETE #
 from .basedata import *
 from .nodedata import *
 from .nodetypes import *

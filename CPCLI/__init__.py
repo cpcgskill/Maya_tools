@@ -10,4 +10,11 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
-from newmoves import newmoves
+import time
+
+print time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+from .utils import *
+from .newmoves import newmoves
+from .moves import moves
+from .build import build
+from .group import group

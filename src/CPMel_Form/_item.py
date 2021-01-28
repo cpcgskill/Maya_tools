@@ -22,7 +22,33 @@ class Object(QWidget):
         super(Object, self).__init__()
 
     def run(self):
-        return object
+        return None
+
+
+
+
+class Help(Object):
+    def __init__(self, text=u""):
+        text = decode(text)
+        super(Help, self).__init__()
+        self.setMinimumHeight(40)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setMargin(0)
+        text = QLabel(text)
+        text.setWordWrap(True)
+        text.setAlignment(Qt.AlignCenter)
+        self.main_layout.addWidget(text)
+        self.main_layout.addStretch(0)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setPen(Qt.NoPen)
+        p.setBrush(QBrush(QColor(75, 75, 75)))
+        p.drawRoundedRect(self.rect(), 4, 4)
+
+    def run(self):
+        return None
 
 
 class Label(Object):
@@ -33,9 +59,8 @@ class Label(Object):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setMargin(0)
         self.main_layout.addWidget(QLabel(text))
-
     def run(self):
-        return object
+        return None
 
 
 class Text(Object):
@@ -121,7 +146,6 @@ class FloatSlider(Object):
         self._main_layout = QHBoxLayout(self)
         self._text = QLabel()
         self._text.setFixedWidth(60)
-
 
         self._slider = QSlider(Qt.Horizontal, self)
         self._slider.setMinimum(0)

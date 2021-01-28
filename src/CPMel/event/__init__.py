@@ -9,5 +9,11 @@ u"""
 :aboutcg: https://www.aboutcg.org/teacher/54335
 :bilibili: https://space.bilibili.com/351598127
 """
+# DELETE #
+from .. import ISDEBUG
 
+if ISDEBUG:
+    from . import events
+    reload(events)
+# \DELETE #
 from .events import *

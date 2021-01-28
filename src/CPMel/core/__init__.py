@@ -9,7 +9,16 @@ u"""
 :aboutcg: https://www.aboutcg.org/teacher/54335
 :bilibili: https://space.bilibili.com/351598127
 """
-
+# DELETE #
+from .. import ISDEBUG
+if ISDEBUG:
+    import error
+    reload(error)
+    import command
+    reload(command)
+    import metaclass
+    reload(metaclass)
+# \DELETE #
 import maya.cmds as cmds
 from .error import CPMelErrorBase, CPMelScriptError, CPMelToolError, CPMelError, decode
 from .command import addCommand, addCommands, defAddCommandList, Command

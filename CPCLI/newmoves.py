@@ -12,11 +12,12 @@ u"""
 """
 import os
 import re
+from .utils import *
 
 
 def newmoves(root,
-         out_file=u"moves.txt",
-         re_s=r".*\.(py|pyd|pyo|pyw)$"):
+             moves_file=u"moves.txt",
+             re_s=r".*\.(py|pyc|pyd|pyo|pyw)$"):
     re_o = re.compile(re_s)
     root = root.replace(u"\\", u"/")
     outs = list()
@@ -31,5 +32,4 @@ def newmoves(root,
                 tab = u"    " * (len(file.split(u"/")) - 1)
                 file = tab + file
                 outs.append(file)
-    with open(out_file, "w") as f:
-        f.write(u"\n".join(outs))
+    writeFile(moves_file, u"\n".join(outs))

@@ -16,7 +16,13 @@ import maya.cmds as cmds
 PLUG_Path = u"{}\\MeldoIt.py".format(MAYAPLUG)
 
 PLUG_NAME = u"CPMel_" + str(hash(MAYAPLUG)).replace(u"-", u"_")
+# DELETE #
+from .. import ISDEBUG
 
+if ISDEBUG:
+    if cmds.pluginInfo(PLUG_NAME, query=True, loaded=True):
+        cmds.unloadPlugin(PLUG_NAME)
+# \DELETE #
 if not cmds.pluginInfo(PLUG_NAME, query=True, loaded=True):
     cmds.loadPlugin(PLUG_Path, n=PLUG_NAME)
 

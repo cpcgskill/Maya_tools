@@ -9,6 +9,15 @@ u"""
 :aboutcg: https://www.aboutcg.org/teacher/54335
 :bilibili: https://space.bilibili.com/351598127
 """
-
+# DELETE #
+from ... import ISDEBUG
+if ISDEBUG:
+    from . import toMel
+    from . import base
+    from . import static
+    reload(toMel)
+    reload(base)
+    reload(static)
+# \DELETE #
 from static import mel
 

@@ -10,7 +10,6 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 入口脚本
 """
-from main import MainWindow
-
-win = MainWindow()
-win.show()
+import main
+from main import main
+main()

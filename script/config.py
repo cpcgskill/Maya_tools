@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*-coding:utf-8 -*-
 u"""
-:创建时间: 2020/11/10 22:32
+:创建时间: 2021/1/21 17:58
 :作者: 苍之幻灵
 :我的主页: https://cpcgskill.com
 :QQ: 2921251087
@@ -10,3 +10,9 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
+scripts = u"script"
+src = u"src"
+build = u"build"
+
+group_name = u"tools_v1_0"
+main_script = u"entrance.py"

@@ -225,8 +225,9 @@ def input(title=u'输入', message=u'>>>', text=u''):
     :param message: 消息
     :param text: 默认参数
     :return: unicode is None
+    :rtype: unicode|None
     """
-    v, is_ok = QInputDialog.getText(mui, title, message, text)
+    v, is_ok = QInputDialog.getText(mui, title, message, QLineEdit.Normal, text)
     if is_ok:
         return v
     return None
@@ -239,7 +240,8 @@ def inputInt(title=u'输入', message=u'>>>', text=0):
     :param title: 标题
     :param message: 消息
     :param text: 默认参数
-    :return: unicode is None
+    :return: int is None
+    :rtype: int|None
     """
     v, is_ok = QInputDialog.getInt(mui, title, message, text)
     if is_ok:
@@ -254,7 +256,9 @@ def inputDouble(title=u'输入', message=u'>>>', text=0.0):
     :param title: 标题
     :param message: 消息
     :param text: 默认参数
-    :return: unicode is None
+    :return: float is None
+    :rtype: float|None
+
     """
     v, is_ok = QInputDialog.getDouble(mui, title, message, text)
     if is_ok:
@@ -269,7 +273,8 @@ def inputFloat(title=u'输入', message=u'>>>', text=0.0):
     :param title: 标题
     :param message: 消息
     :param text: 默认参数
-    :return: unicode is None
+    :return: float is None
+    :rtype: float|None
     """
     return inputDouble(title, message, text)
 
@@ -282,6 +287,7 @@ def inputMultiLineText(title=u'输入', message=u'>>>', text=u''):
     :param message: 消息
     :param text: 默认参数
     :return: unicode is None
+    :rtype: unicode|None
     """
     v, is_ok = QInputDialog.getMultiLineText(mui, title, message, text)
     if is_ok:

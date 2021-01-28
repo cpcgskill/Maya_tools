@@ -50,4 +50,24 @@ from . import OpenMayaFX
 from . import OpenMayaRender
 from . import OpenMayaUI
 from . import OpenMayaMPx
+# DELETE #
+from .. import ISDEBUG
 
+if ISDEBUG:
+    reload(__OpenMaya__)
+    reload(__OpenMayaAnim__)
+    reload(__OpenMayaFX__)
+    reload(__OpenMayaRender__)
+    reload(__OpenMayaUI__)
+    reload(__OpenMayaMPx__)
+    reload(__OpenMaya_it__)
+    reload(__OpenMayaAnim_it__)
+    reload(__OpenMaya_array__)
+    reload(__OpenMayaAnim_array__)
+    reload(OpenMaya)
+    reload(OpenMayaAnim)
+    reload(OpenMayaFX)
+    reload(OpenMayaRender)
+    reload(OpenMayaUI)
+    reload(OpenMayaMPx)
+# \DELETE #

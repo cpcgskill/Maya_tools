@@ -10,7 +10,22 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 """
 import warnings
+# DELETE #
+from .. import ISDEBUG
 
+if ISDEBUG:
+    from . import node
+    from . import FrontPackage
+    from . import static_cmds
+    from . import AfterPackage
+    from . import melproc
+
+    reload(node)
+    reload(FrontPackage)
+    reload(static_cmds)
+    reload(AfterPackage)
+    reload(melproc)
+# \DELETE #
 from . import node
 from .node.basedata import *
 from .node.nodedata import newObject, Global, Components1Base, Components2Base, Components3Base

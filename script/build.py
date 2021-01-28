@@ -10,3 +10,22 @@ u"""
 :bilibili: https://space.bilibili.com/351598127
 
 """
+from CPCLI import *
+
+scripts = r"D:\Development\tools\script"
+src = r"D:\Development\tools\src"
+build = r"D:\Development\tools\build"
+
+group_name = utils.uidname()
+main_script = r"entrance.py"
+
+scripts = formattedPath(scripts)
+src = formattedPath(src)
+build = formattedPath(build)
+
+group_src = u"{}/{}".format(build, group_name)
+copyDir(src, group_src)
+writeFile(u"{}/{}".format(build, main_script),
+          readFile(u"{}/{}".format(scripts, main_script)))
+
+group(group_src, u"{}/{}".format(build, main_script), group_name)

@@ -16,7 +16,7 @@ from CPMel.ui import *
 from CPMel.api.OpenMaya import MGlobal
 from CPMel_Form import *
 
-ICON = PATH + u"/icon.ico"
+ICON = PATH + u"/icon.png"
 QSS = PATH + u"/qss.qss"
 HEAD = PATH + u"/head.png"
 
@@ -49,15 +49,21 @@ class Head(QWidget):
 
 
 class Main(CPQWidget):
-    def __init__(self, icon=ICON, title=u"CPWindow", form=tuple(), func=lambda *args: 0):
+    def __init__(self, icon=ICON,
+                 title=u"CPWindow",
+                 form=tuple(),
+                 func=lambda *args: 0,
+                 doit_text=u"确认表单已填充-执行"):
         icon = decode(icon)
         title = decode(title)
+        doit_text = decode(doit_text)
         self.func = undoBlock(func)
         super(Main, self).__init__()
         with open(QSS, "r") as f:
             self.setStyleSheet(f.read())
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon(icon))
+        self.setMinimumWidth(300)
         self._main_layout = QVBoxLayout(self)
         self._main_layout.setContentsMargins(0, 0, 0, 0)
         self._main_layout.setMargin(5)
@@ -71,18 +77,16 @@ class Main(CPQWidget):
             widget = i[0](*(i[1:]))
             self._main_layout.addWidget(widget)
             self.weidgets.append(widget)
+        self._main_layout.addStretch(0)
         h_line = QFrame(self)
         h_line.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(h_line)
-        for i in range(3):
-            self._main_layout.addStretch(0)
-            h_line = QFrame(self)
-            h_line.setFrameShape(QFrame.HLine)
-            self._main_layout.addWidget(h_line)
-        self.doIt_bn = QPushButton(u"确认表单已填充-执行")
+        self.doIt_bn = QPushButton(doit_text)
         self.doIt_bn.clicked.connect(undoBlock(self.doIt))
         self._main_layout.addWidget(self.doIt_bn)
-        self._main_layout.addWidget(QLabel(u"本窗口界面由CPMel_Form1.0开发"))
+        label = QLabel(u"CPMel_Form v1.0")
+        label.setFixedHeight(20)
+        self._main_layout.addWidget(label)
 
     def doIt(self, *args):
         value = [i.run() for i in self.weidgets]
@@ -98,7 +102,7 @@ class Main(CPQWidget):
 apps = dict()
 
 
-def build(icon=ICON, title=u"CPWindow", form=tuple(), func=lambda *args: 0):
+def build(icon=ICON, title=u"CPWindow", form=tuple(), func=lambda *args: 0, doit_text=u"确认表单已填充-执行"):
     u"""
     build函数提供将表单(列表 or 元组)编译为界面的功能
 
@@ -115,8 +119,9 @@ def build(icon=ICON, title=u"CPWindow", form=tuple(), func=lambda *args: 0):
     if not os.path.isfile(icon):
         icon = ICON
         MGlobal.displayWarning(u"图标路径不存在")
-    main_widget = Main(icon, title, form, func)
+    main_widget = Main(icon, title, form, func, doit_text)
     main_widget.show()
     main_widget.update()
-    main_widget.setFixedHeight(main_widget.height())
+    main_widget.resize(0, 0)
+    # main_widget.setFixedHeight(main_widget.height())
     apps[hash(title)] = main_widget
